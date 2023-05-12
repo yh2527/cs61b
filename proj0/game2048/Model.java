@@ -109,16 +109,61 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
+        board.setViewingPerspective(side);
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        for (int c=0; c<size(); c+=1){
+            if (tiltCol(c)) {
+                changed = true;
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+    private boolean tiltCol(int c){
+        boolean changed = false;
+        boolean lastMerge = false;
+        for (int r = 2; r >= 0; r -= 1){
+            Tile t = board.tile(c, r);
+            if (t == null){
+                continue;
+            }
+            //number of tiles above the Tile t is occupied
+            int occupied = countOccupiedTile(c, r);
+            //count for whether the last move is merge or not
+            int mergePlaceHolder = 0;
+            if (occupied > 0){
+                Tile closest = board.tile(c, 4 - occupied);
+                if (t.value() == closest.value() && !lastMerge){
+                    mergePlaceHolder = 1;
+                }
+            }
+            int newr = 3 - occupied + mergePlaceHolder;
+            if (newr != r) {
+                lastMerge = board.move(c, newr, t);
+                if (lastMerge){
+                    score += board.tile(c, newr).value();
+                }
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    private int countOccupiedTile(int c, int r) {
+        int result = 0;
+        for (int row = r+1; row < 4; row += 1){
+            if (board.tile(c, row) != null){
+                result += 1;
+            }
+        }
+        return result;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -181,10 +226,6 @@ public class Model extends Observable {
         }
         for (int c=0; c<b.size(); c+=1){
             for (int r=0; r<b.size(); r+=1){
-                System.out.print(c);
-                System.out.print(r);
-                System.out.print(b.tile(c,r).value());
-                System.out.println();
                 if (r<(b.size()-1)){
                     if (b.tile(c,r).value()==b.tile(c,r+1).value()){
                         return true;
