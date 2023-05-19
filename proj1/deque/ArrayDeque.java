@@ -31,14 +31,18 @@ public class ArrayDeque<T> {
         nextFirst = plusOne(nextFirst);
         T result = items[nextFirst];
         items[nextFirst] = null;
-        size -= 1;
+        if (!isEmpty()) {
+            size -= 1;
+        }
         return result;
     }
     public T removeLast() {
         nextLast = minusOne(nextLast);
         T result = items[nextLast];
         items[nextLast] = null;
-        size -= 1;
+        if (!isEmpty()) {
+            size -= 1;
+        }
         return result;
     }
     public boolean isEmpty() {
@@ -108,6 +112,16 @@ public class ArrayDeque<T> {
         L.printDeque();
         L.removeLast();
         L.printDeque();
+        System.out.println(L.size());
+        L.removeLast();
+        L.removeLast();
+        L.removeLast();
+        L.removeLast();
+        L.removeLast();
+        L.removeLast();
+        L.removeLast();
+        L.printDeque();
+        System.out.println(L.size());
         //L.addFirst(0);
 
     }
