@@ -41,10 +41,7 @@ public class LinkedListDeque<T> {
     }
 
     public boolean isEmpty() {
-        if (size > 0) {
-            return false;
-        }
-        return true;
+        return size() == 0;
     }
 
     public int size() {
@@ -85,6 +82,37 @@ public class LinkedListDeque<T> {
         return current.item;
     }
 
+    public T getRecursive(int index) {
+        if (index >= size()) {
+            return null;
+        }
+        return getRecursiveHelper(index, sentinel);
+
+    }
+
+    private T getRecursiveHelper(int index, Node n) {
+        if (index == 0) {
+            return n.next.item;
+        } else {
+            return getRecursiveHelper(index - 1, n.next);
+        }
+    }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof LinkedListDeque)) {
+            return false;
+        }
+        if (((LinkedListDeque<?>) o).size() != size()) {
+            return false;
+        }
+        for (int i = 0; i < size(); i += 1) {
+            if (!get(i).equals(((LinkedListDeque<?>) o).get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void printDeque() {
         for (int i = 0; i < size(); i += 1) {
             System.out.print(get(i));
@@ -98,8 +126,17 @@ public class LinkedListDeque<T> {
         L.addFirst(3);
         L.addFirst(2);
         L.addFirst(1);
-        System.out.println(L.removeFirst());
-        System.out.println(L.removeLast());
+        L.printDeque();
+        //System.out.println(L.get(1));
+        //System.out.println(L.getRecursive(1));
+        //System.out.println(L.removeFirst());
+        //System.out.println(L.removeLast());
+        LinkedListDeque L2 = new LinkedListDeque();
+        L2.addFirst(1);
+        L2.addFirst(2);
+        L2.addFirst(3);
+        int L3 = 99;
+        System.out.println(L.equals(L2));
     }
 
 }
