@@ -5,14 +5,17 @@ public class LinkedListDeque<T> {
         private Node prev;
         private T item;
         private Node next;
+
         public Node(Node p, T i, Node n) {
             prev = p;
             item = i;
             next = n;
         }
     }
+
     private Node sentinel;
     private int size;
+
     //Constructor: create an empty list
     public LinkedListDeque() {
         sentinel = new Node(null, null, null);
@@ -20,6 +23,7 @@ public class LinkedListDeque<T> {
         sentinel.next = sentinel;
         size = 0;
     }
+
     public void addFirst(T item) {
         Node oldHead = sentinel.next;
         Node head = new Node(sentinel, item, oldHead);
@@ -27,6 +31,7 @@ public class LinkedListDeque<T> {
         oldHead.prev = head;
         size += 1;
     }
+
     public void addLast(T item) {
         Node oldTail = sentinel.prev;
         Node tail = new Node(oldTail, item, sentinel);
@@ -34,15 +39,18 @@ public class LinkedListDeque<T> {
         oldTail.next = tail;
         size += 1;
     }
+
     public boolean isEmpty() {
         if (size > 0) {
             return false;
         }
         return true;
     }
+
     public int size() {
         return size;
     }
+
     public T removeFirst() {
         T result = sentinel.next.item;
         Node newHead = sentinel.next.next;
@@ -53,6 +61,7 @@ public class LinkedListDeque<T> {
         }
         return result;
     }
+
     public T removeLast() {
         T result = sentinel.prev.item;
         Node newTail = sentinel.prev.prev;
@@ -63,6 +72,7 @@ public class LinkedListDeque<T> {
         }
         return result;
     }
+
     public T get(int index) {
         if (index >= size()) {
             return null;
@@ -74,6 +84,7 @@ public class LinkedListDeque<T> {
         }
         return current.item;
     }
+
     public void printDeque() {
         for (int i = 0; i < size(); i += 1) {
             System.out.print(get(i));
@@ -81,6 +92,7 @@ public class LinkedListDeque<T> {
         }
         System.out.println();
     }
+
     public static void main(String[] args) {
         LinkedListDeque L = new LinkedListDeque();
         L.addFirst(3);
