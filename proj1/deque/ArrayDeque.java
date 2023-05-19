@@ -27,6 +27,7 @@ public class ArrayDeque<T> {
         nextLast = plusOne(nextLast);
         size += 1;
     }
+
     public T removeFirst() {
         nextFirst = plusOne(nextFirst);
         T result = items[nextFirst];
@@ -36,6 +37,7 @@ public class ArrayDeque<T> {
         }
         return result;
     }
+
     public T removeLast() {
         nextLast = minusOne(nextLast);
         T result = items[nextLast];
@@ -45,11 +47,9 @@ public class ArrayDeque<T> {
         }
         return result;
     }
+
     public boolean isEmpty() {
-        if (size() > 0) {
-            return false;
-        }
-        return true;
+        return size() == 0;
     }
 
     public int size() {
@@ -67,6 +67,21 @@ public class ArrayDeque<T> {
         return items[ArrayIndex];
     }
 
+    public boolean equals(Object o) {
+        if (!(o instanceof ArrayDeque)) {
+            return false;
+        }
+        if (((ArrayDeque<?>) o).size() != size()) {
+            return false;
+        }
+        for (int i = 0; i < size(); i += 1) {
+            if (!get(i).equals(((ArrayDeque<?>) o).get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void printDeque() {
         for (int i = 0; i < size(); i += 1) {
             System.out.print(get(i));
@@ -76,21 +91,11 @@ public class ArrayDeque<T> {
     }
 
     private int minusOne(int index) {
-        if (index == 0) {
-            index = items.length - 1;
-        } else {
-            index -= 1;
-        }
-        return index;
+        return (index - 1 + items.length) % items.length;
     }
 
     private int plusOne(int index) {
-        if (index == items.length - 1) {
-            index = 0;
-        } else {
-            index += 1;
-        }
-        return index;
+        return (index + 1) % items.length;
     }
 
     public static void main(String[] args) {
@@ -99,30 +104,12 @@ public class ArrayDeque<T> {
         L.addFirst(7);
         L.addFirst(6);
         L.printDeque();
-        L.addFirst(5);
-        L.addFirst(4);
-        L.addFirst(3);
-        L.addFirst(2);
-        L.addFirst(1);
-        L.printDeque();
-        System.out.println(L.get(0));
-        System.out.println(L.get(1));
-        System.out.println(L.get(8));
-        L.removeFirst();
-        L.printDeque();
-        L.removeLast();
-        L.printDeque();
-        System.out.println(L.size());
-        L.removeLast();
-        L.removeLast();
-        L.removeLast();
-        L.removeLast();
-        L.removeLast();
-        L.removeLast();
-        L.removeLast();
-        L.printDeque();
-        System.out.println(L.size());
-        //L.addFirst(0);
-
+        ArrayDeque L2 = new ArrayDeque();
+        L2.addFirst(8);
+        L2.addFirst(7);
+        L2.addFirst(5);
+        L2.printDeque();
+        String L3 = "Hi";
+        System.out.println(L.equals(L3));
     }
 }
