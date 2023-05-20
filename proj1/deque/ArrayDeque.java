@@ -14,15 +14,29 @@ public class ArrayDeque<T> {
         nextLast = 5;
     }
 
+    private void resize(int s) {
+        T[] newArray = (T[]) new Object[s];
+        for (int i = 0; i < size(); i += 1) {
+            newArray[i] = get(i);
+        }
+        items = newArray;
+        nextFirst = items.length - 1;
+        nextLast = size();
+    }
+
     public void addFirst(T item) {
-        //TODO: need to check for resizing
+        if (size() == items.length) {
+            resize(size() * 2);
+        }
         items[nextFirst] = item;
         nextFirst = minusOne(nextFirst);
         size += 1;
     }
 
     public void addLast(T item) {
-        //TODO: need to check for resizing
+        if (size() == items.length) {
+            resize(size() * 2);
+        }
         items[nextLast] = item;
         nextLast = plusOne(nextLast);
         size += 1;
@@ -35,6 +49,9 @@ public class ArrayDeque<T> {
         if (!isEmpty()) {
             size -= 1;
         }
+        if (size() > 16 && size() / items.length < 0.25) {
+            resize(size() / 2);
+        }
         return result;
     }
 
@@ -44,6 +61,9 @@ public class ArrayDeque<T> {
         items[nextLast] = null;
         if (!isEmpty()) {
             size -= 1;
+        }
+        if (size() > 16 && size() / items.length < 0.25) {
+            resize(size() / 2);
         }
         return result;
     }
@@ -60,10 +80,7 @@ public class ArrayDeque<T> {
         if (index >= size()) {
             return null;
         }
-        int ArrayIndex = nextFirst + 1 + index;
-        if (ArrayIndex >= items.length) {
-            ArrayIndex -= items.length;
-        }
+        int ArrayIndex = (nextFirst + 1 + index) % items.length;
         return items[ArrayIndex];
     }
 
@@ -103,13 +120,16 @@ public class ArrayDeque<T> {
         L.addFirst(8);
         L.addFirst(7);
         L.addFirst(6);
+        L.addFirst(5);
+        L.addFirst(4);
+        L.addFirst(3);
+        L.addFirst(2);
+        L.addFirst(1);
         L.printDeque();
-        ArrayDeque L2 = new ArrayDeque();
-        L2.addFirst(8);
-        L2.addFirst(7);
-        L2.addFirst(5);
-        L2.printDeque();
-        String L3 = "Hi";
-        System.out.println(L.equals(L3));
+        System.out.println(L.get(4));
+
+        L.removeLast();
+        L.printDeque();
+        System.out.println(L.get(4));
     }
 }
