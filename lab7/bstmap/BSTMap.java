@@ -111,7 +111,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         return keySet().iterator();
     }
 
-    /* Prints out the BSTMap instance in order of increasing Key.*/
+    /* Prints out the BSTMap instance in order of increasing Key.
+    * make changes */
     public void printInOrder() {
         String result = "";
         if (!(left == null)) {
@@ -125,14 +126,5 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         if (!(right == null)) {
             right.printInOrder();
         }
-    }
-
-    public static void main(String[] args) {
-        BSTMap<String, Integer> m = new BSTMap();
-        m.put("test1", 1);
-        //System.out.println(m.size());
-        m.put("test2", 2);
-        m.put("test3", 3);
-        m.printInOrder();
     }
 }
