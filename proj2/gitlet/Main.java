@@ -30,11 +30,16 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                String fileName = args[1];
-                // TODO: handle the `add [filename]` command
-                Repository.add(fileName);
+                String addFileName = args[1];
+                Repository.add(addFileName);
                 break;
             case "commit":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String commitMsg = args[1];
+                Repository.commit(commitMsg);
                 break;
             case "checkout":
                 break;

@@ -81,15 +81,46 @@ public class Repository {
         }
         String addFileID = sha1(readContents(addFile));
         HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
-        System.out.println(readContentsAsString(MASTER));
+        //System.out.println(readContentsAsString(MASTER));
         Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
         //check if file content is the same as in the current commit
         if (addFileID.equals(latestCommit.CommitFileMap().get(fileName))) {
             //remove the file from the staging area if it's there
             stageMap.remove(fileName);
         } else {
-            stageMap.put(fileName,addFileID);
+            stageMap.put(fileName, addFileID);
         }
         writeObject(STAGE, stageMap);
+    }
+
+    public static void commit(String msg) {
+        HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
+        if (stageMap.isEmpty()) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        if (msg.length() == 0) {
+            System.out.println("Please enter a commit message.");
+        } else {
+            Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
+            HashMap<String, String> CommitMap = latestCommit.CommitFileMap();
+            for (String e : stageMap.keySet()) {
+                String eid = stageMap.get(e);
+                CommitMap.put(e, eid);
+                saveFile(e, eid);
+            }
+            stageMap.clear();
+            writeObject(STAGE, stageMap);
+            Commit newCommit = new Commit(msg, CommitMap, latestCommit.CommitHashID());
+            newCommit.saveCommit();
+            writeContents(MASTER, newCommit.CommitHashID());
+        }
+    }
+
+    public static void saveFile(String fileName, String fileHashID) {
+        File toSave = join(CWD, fileName);
+        String contents = readContentsAsString(toSave);
+        File saveAs = join(FILE_DIR, fileHashID);
+        writeContents(saveAs, contents);
     }
 }

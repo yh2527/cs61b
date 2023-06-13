@@ -28,16 +28,19 @@ public class Commit implements Serializable {
     /**
      * The message of this Commit.
      */
+    private static final long serialVersionUID = 1L;
     private String message;
     private String ID;
     private String parentID;
     private String createStamp;
     private HashMap<String, String> fileMap = new HashMap<>();
 
-    public Commit(File blob, String msg) {
+    public Commit(String msg, HashMap<String, String> fMap, String pID) {
         message = msg;
         createStamp = createTime(false);
-        ID = Utils.sha1(message, createStamp, blob);
+        fileMap = fMap;
+        parentID = pID;
+        ID = Utils.sha1(fileMap.toString(), parentID, message, createStamp);
     }
 
     //create initial commit
@@ -65,6 +68,7 @@ public class Commit implements Serializable {
     public String ParentHashID() {
         return this.parentID;
     }
+
     public HashMap CommitFileMap() {
         return this.fileMap;
     }
