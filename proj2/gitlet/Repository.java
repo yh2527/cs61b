@@ -107,7 +107,7 @@ public class Repository {
             for (String e : stageMap.keySet()) {
                 String eid = stageMap.get(e);
                 CommitMap.put(e, eid);
-                saveFile(e, eid);
+                saveFilefromCWD(e, eid);
             }
             stageMap.clear();
             writeObject(STAGE, stageMap);
@@ -117,10 +117,49 @@ public class Repository {
         }
     }
 
-    public static void saveFile(String fileName, String fileHashID) {
+    public static void log() {
+        String currHash = readContentsAsString(MASTER);
+        while (currHash != null) {
+            Commit currCommit = Commit.readCommit(currHash);
+            System.out.println("===");
+            System.out.println("commit " + currCommit.CommitHashID());
+            System.out.println("Date: " + currCommit.returnCreatedTime());
+            System.out.println(currCommit.returnMessage());
+            System.out.println();
+            currHash = currCommit.ParentHashID();
+            //System.out.println(currCommit.returnMessage());
+        }
+    }
+
+    public static void checkout(String checkoutFileName, String checkoutCommitID) {
+        Commit targetCommit;
+        if (checkoutCommitID == null) {
+            targetCommit = Commit.readCommit(readContentsAsString(MASTER));
+        } else {
+            targetCommit = Commit.readCommit(checkoutCommitID);
+        }
+        HashMap<String, String> targetFileMap = targetCommit.CommitFileMap();
+        String checkoutFileHashID = targetFileMap.get(checkoutFileName);
+        if (checkoutFileHashID == null) {
+            System.out.println("File does not exist in that commit.");
+        } else
+            saveFiletoCWD(checkoutFileName, checkoutFileHashID);
+    }
+
+    public static void saveFilefromCWD(String fileName, String fileHashID) {
         File toSave = join(CWD, fileName);
         String contents = readContentsAsString(toSave);
+        //System.out.println(contents);
         File saveAs = join(FILE_DIR, fileHashID);
         writeContents(saveAs, contents);
     }
+
+    public static void saveFiletoCWD(String fileName, String fileHashID) {
+        File toSave = join(FILE_DIR, fileHashID);
+        String contents = readContentsAsString(toSave);
+        //System.out.println(contents);
+        File saveAs = join(CWD, fileName);
+        writeContents(saveAs, contents);
+    }
+
 }

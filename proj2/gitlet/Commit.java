@@ -51,11 +51,15 @@ public class Commit implements Serializable {
     }
 
     public static Commit readCommit(String hashID) {
-        File inFile = join(Repository.COMMIT_DIR, hashID);
-        Commit c = readObject(inFile, Commit.class);
-        return c;
+        try {
+            File inFile = join(Repository.COMMIT_DIR, hashID);
+            Commit c = readObject(inFile, Commit.class);
+            return c;
+        } catch (Exception e) {
+            System.out.println("No commit with that id exists.");
+            throw error("No commit with that id exists.");
+        }
     }
-
     public void saveCommit() {
         File outFile = join(Repository.COMMIT_DIR, ID);
         writeObject(outFile, this);
@@ -69,11 +73,19 @@ public class Commit implements Serializable {
         return this.parentID;
     }
 
+    public String returnCreatedTime() {
+        return this.createStamp;
+    }
+
+    public String returnMessage() {
+        return this.message;
+    }
+
     public HashMap CommitFileMap() {
         return this.fileMap;
     }
 
-    public static String createTime(boolean init) {
+    private static String createTime(boolean init) {
         ZonedDateTime time;
         if (init) {
             time = Instant.ofEpochSecond(0).atZone(ZoneId.of("PST", ZoneId.SHORT_IDS));
@@ -87,6 +99,4 @@ public class Commit implements Serializable {
         return formattedDate;
     }
 
-
 }
-

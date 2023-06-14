@@ -42,8 +42,28 @@ public class Main {
                 Repository.commit(commitMsg);
                 break;
             case "checkout":
+                String checkoutFileName = null;
+                String checkoutCommitID = null;
+                if (args.length < 2 || args.length > 4) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                if (args.length == 3) {
+                    checkoutFileName = args[2];
+                    //checkoutCommitID = Utils.readContentsAsString(Repository.MASTER);
+                }
+                if (args.length == 4) {
+                    checkoutFileName = args[3];
+                    checkoutCommitID = args[1];
+                }
+                Repository.checkout(checkoutFileName, checkoutCommitID);
                 break;
             case "log":
+                if (args.length > 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                Repository.log();
                 break;
             // TODO: FILL THE REST IN
             default:
