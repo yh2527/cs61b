@@ -167,7 +167,7 @@ public class Repository {
     public static void status() {
         System.out.println("=== Branches ===");
         System.out.println("*master");
-        System.out.println("other-branch");
+        //System.out.println("other-branch");
         System.out.println();
         System.out.println("=== Staged Files ===");
         HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
