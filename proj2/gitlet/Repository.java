@@ -3,6 +3,8 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static gitlet.Utils.*;
 
@@ -162,4 +164,25 @@ public class Repository {
         writeContents(saveAs, contents);
     }
 
+    public static void status() {
+        System.out.println("=== Branches ===");
+        System.out.println("*master");
+        System.out.println("other-branch");
+        System.out.println();
+        System.out.println("=== Staged Files ===");
+        HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
+        Set<String> stagedFileNames = stageMap.keySet();
+        TreeSet<String> sortedFileNames = new TreeSet<>(stagedFileNames);
+        for (String fileName : sortedFileNames) {
+            System.out.println(fileName);
+        }
+        System.out.println();
+        System.out.println("=== Removed Files ===");
+        //TODO
+        System.out.println();
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
+    }
 }

@@ -65,6 +65,13 @@ public class Main {
                 }
                 Repository.log();
                 break;
+            case "status":
+                if (args.length > 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                Repository.status();
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");
