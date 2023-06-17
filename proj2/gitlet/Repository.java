@@ -125,12 +125,12 @@ public class Repository {
                 saveFilefromCWD(a, aid);
             }
             stageAddMap.clear();
-            TreeSet<String> removedFiles = readObject(REMOVED, TreeSet.class);
+            //TreeSet<String> removedFiles = readObject(REMOVED, TreeSet.class);
             for (String r : stageRemoveMap.keySet()) {
                 newCommit.untrackFile(r);
-                removedFiles.add(r);
+                //removedFiles.add(r);
             }
-            writeObject(REMOVED, removedFiles);
+            //writeObject(REMOVED, removedFiles);
             stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
             newCommit.saveCommit();
@@ -198,8 +198,8 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        //HashMap<String, String> stageRemoveMap = stageMap.get("remove");
-        TreeSet<String> sortedRmFileNames = readObject(REMOVED, TreeSet.class);
+        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
+        TreeSet<String> sortedRmFileNames = new TreeSet<>(stageRemoveMap.keySet());
         for (String fileName : sortedRmFileNames) {
             System.out.println(fileName);
         }
@@ -228,6 +228,9 @@ public class Repository {
                     toRemove.delete();
                 }
                 stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
+                //TreeSet<String> removedFiles = readObject(REMOVED, TreeSet.class);
+                //removedFiles.add(fileName);
+                //writeObject(REMOVED, removedFiles);
             }
         }
         writeObject(STAGE, stageMap);
