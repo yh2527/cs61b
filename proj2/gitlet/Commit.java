@@ -60,6 +60,7 @@ public class Commit implements Serializable {
             throw error("No commit with that id exists.");
         }
     }
+
     public void saveCommit() {
         File outFile = join(Repository.COMMIT_DIR, ID);
         writeObject(outFile, this);
@@ -83,6 +84,13 @@ public class Commit implements Serializable {
 
     public HashMap CommitFileMap() {
         return this.fileMap;
+    }
+
+    public String untrackFile(String fileName) {
+        return fileMap.remove(fileName);
+    }
+    public void trackNewFile(String fileName, String fileHashID) {
+        fileMap.put(fileName, fileHashID);
     }
 
     private static String createTime(boolean init) {

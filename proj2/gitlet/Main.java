@@ -72,6 +72,14 @@ public class Main {
                 }
                 Repository.status();
                 break;
+            case "rm":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String rmFileName = args[1];
+                Repository.rm(rmFileName);
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");

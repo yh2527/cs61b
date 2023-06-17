@@ -3,7 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Set;
+//import java.util.Set;
 import java.util.TreeSet;
 
 import static gitlet.Utils.*;
@@ -61,7 +61,9 @@ public class Repository {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HashMap<String, String> stageMap = new HashMap<>();
+        HashMap<String, HashMap> stageMap = new HashMap<>();
+        stageMap.put("add", new HashMap<String, String>());
+        stageMap.put("remove", new HashMap<String, String>());
         writeObject(STAGE, stageMap);
         //set up default commit: no file "initial commit"
         Commit initCommit = new Commit("initial commit");
@@ -82,22 +84,25 @@ public class Repository {
             System.exit(0);
         }
         String addFileID = sha1(readContents(addFile));
-        HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, String> stageAddMap = stageMap.get("add");
         //System.out.println(readContentsAsString(MASTER));
         Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
         //check if file content is the same as in the current commit
         if (addFileID.equals(latestCommit.CommitFileMap().get(fileName))) {
             //remove the file from the staging area if it's there
-            stageMap.remove(fileName);
+            stageAddMap.remove(fileName);
         } else {
-            stageMap.put(fileName, addFileID);
+            stageAddMap.put(fileName, addFileID);
         }
         writeObject(STAGE, stageMap);
     }
 
     public static void commit(String msg) {
-        HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
-        if (stageMap.isEmpty()) {
+        HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, String> stageAddMap = stageMap.get("add");
+        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
+        if (stageAddMap.isEmpty() && stageRemoveMap.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
@@ -105,15 +110,18 @@ public class Repository {
             System.out.println("Please enter a commit message.");
         } else {
             Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
-            HashMap<String, String> CommitMap = latestCommit.CommitFileMap();
-            for (String e : stageMap.keySet()) {
-                String eid = stageMap.get(e);
-                CommitMap.put(e, eid);
-                saveFilefromCWD(e, eid);
+            Commit newCommit = new Commit(msg, latestCommit.CommitFileMap(), latestCommit.CommitHashID());
+            for (String a : stageAddMap.keySet()) {
+                String aid = stageAddMap.get(a);
+                newCommit.trackNewFile(a, aid);
+                saveFilefromCWD(a, aid);
             }
-            stageMap.clear();
+            stageAddMap.clear();
+            for (String r : stageRemoveMap.keySet()) {
+                newCommit.untrackFile(r);
+            }
+            stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
-            Commit newCommit = new Commit(msg, CommitMap, latestCommit.CommitHashID());
             newCommit.saveCommit();
             writeContents(MASTER, newCommit.CommitHashID());
         }
@@ -170,19 +178,46 @@ public class Repository {
         //System.out.println("other-branch");
         System.out.println();
         System.out.println("=== Staged Files ===");
-        HashMap<String, String> stageMap = readObject(STAGE, HashMap.class);
-        Set<String> stagedFileNames = stageMap.keySet();
-        TreeSet<String> sortedFileNames = new TreeSet<>(stagedFileNames);
-        for (String fileName : sortedFileNames) {
+        HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, String> stageAddMap = stageMap.get("add");
+        //Set<String> stagedFileNames = stageAddMap.keySet();
+        TreeSet<String> sortedAddFileNames = new TreeSet<>(stageAddMap.keySet());
+        for (String fileName : sortedAddFileNames) {
             System.out.println(fileName);
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        //TODO
+        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
+        TreeSet<String> sortedRmFileNames = new TreeSet<>(stageRemoveMap.keySet());
+        for (String fileName : sortedRmFileNames) {
+            System.out.println(fileName);
+        }
         System.out.println();
         System.out.println("=== Modifications Not Staged For Commit ===");
         System.out.println();
         System.out.println("=== Untracked Files ===");
         System.out.println();
     }
+
+    public static void rm(String fileName) {
+        HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, String> stageAddMap = stageMap.get("add");
+        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
+        String rmFileID = stageAddMap.remove(fileName);
+        if (rmFileID == null) {
+            Commit currCommit = Commit.readCommit(readContentsAsString(MASTER));
+            HashMap<String, String> currCommitFileMap = currCommit.CommitFileMap();
+            String rmFileIDinCurrCommit = currCommitFileMap.get(fileName);
+            if (rmFileIDinCurrCommit == null) {
+                System.out.println("No reason to remove the file.");
+            } else {
+                File toRemove = join(CWD, fileName);
+                if (toRemove.exists()) {
+                    toRemove.delete();
+                }
+                stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
+            }
+        }
+    }
+
 }
