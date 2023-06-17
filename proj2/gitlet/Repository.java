@@ -36,6 +36,7 @@ public class Repository {
     public static final File HEAD = join(GITLET_DIR, "heads");
     public static final File MASTER = join(HEAD, "master");
     public static final File STAGE = join(GITLET_DIR, "stage");
+    public static final File REMOVED = join(GITLET_DIR, "removed");
     public static final File initCommitID = join(GITLET_DIR, "initCommitID");
 
     public static void init() {
@@ -65,6 +66,11 @@ public class Repository {
         stageMap.put("add", new HashMap<String, String>());
         stageMap.put("remove", new HashMap<String, String>());
         writeObject(STAGE, stageMap);
+        try {
+            REMOVED.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //set up default commit: no file "initial commit"
         Commit initCommit = new Commit("initial commit");
         writeContents(MASTER, initCommit.CommitHashID());
@@ -117,13 +123,15 @@ public class Repository {
                 saveFilefromCWD(a, aid);
             }
             stageAddMap.clear();
-            for (String r : stageRemoveMap.keySet()) {
+            TreeSet<String> removedFiles = new TreeSet<>(stageRemoveMap.keySet());
+            for (String r : removedFiles) {
                 newCommit.untrackFile(r);
             }
             stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
             newCommit.saveCommit();
             writeContents(MASTER, newCommit.CommitHashID());
+            writeObject(REMOVED, removedFiles);
         }
     }
 
@@ -187,8 +195,8 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
-        TreeSet<String> sortedRmFileNames = new TreeSet<>(stageRemoveMap.keySet());
+        //HashMap<String, String> stageRemoveMap = stageMap.get("remove");
+        TreeSet<String> sortedRmFileNames = readObject(REMOVED, TreeSet.class);
         for (String fileName : sortedRmFileNames) {
             System.out.println(fileName);
         }
@@ -210,6 +218,7 @@ public class Repository {
             String rmFileIDinCurrCommit = currCommitFileMap.get(fileName);
             if (rmFileIDinCurrCommit == null) {
                 System.out.println("No reason to remove the file.");
+                System.exit(0);
             } else {
                 File toRemove = join(CWD, fileName);
                 if (toRemove.exists()) {
@@ -218,6 +227,7 @@ public class Repository {
                 stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
             }
         }
+        writeObject(STAGE, stageMap);
     }
 
 }
