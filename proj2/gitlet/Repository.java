@@ -71,6 +71,8 @@ public class Repository {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        TreeSet<String> removedFiles = new TreeSet<>();
+        writeObject(REMOVED, removedFiles);
         //set up default commit: no file "initial commit"
         Commit initCommit = new Commit("initial commit");
         writeContents(MASTER, initCommit.CommitHashID());
@@ -123,15 +125,16 @@ public class Repository {
                 saveFilefromCWD(a, aid);
             }
             stageAddMap.clear();
-            TreeSet<String> removedFiles = new TreeSet<>(stageRemoveMap.keySet());
-            for (String r : removedFiles) {
+            TreeSet<String> removedFiles = readObject(REMOVED, TreeSet.class);
+            for (String r : stageRemoveMap.keySet()) {
                 newCommit.untrackFile(r);
+                removedFiles.add(r);
             }
+            writeObject(REMOVED, removedFiles);
             stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
             newCommit.saveCommit();
             writeContents(MASTER, newCommit.CommitHashID());
-            writeObject(REMOVED, removedFiles);
         }
     }
 
