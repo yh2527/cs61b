@@ -80,6 +80,21 @@ public class Main {
                 String rmFileName = args[1];
                 Repository.rm(rmFileName);
                 break;
+            case "global-log":
+                if (args.length > 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                Repository.globalLog();
+                break;
+            case "find":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String MsgToLookUp = args[1];
+                Repository.find(MsgToLookUp);
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");

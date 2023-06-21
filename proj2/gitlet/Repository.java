@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 //import java.util.Set;
+import java.util.List;
 import java.util.TreeSet;
 
 import static gitlet.Utils.*;
@@ -224,16 +225,41 @@ public class Repository {
                 System.exit(0);
             } else {
                 File toRemove = join(CWD, fileName);
-                if (toRemove.exists()) {
-                    toRemove.delete();
+                if (!restrictedDelete(toRemove)) {
+                    System.out.println("File is not successfully deleted.");
+                } else {
+                    stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
                 }
-                stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
-                //TreeSet<String> removedFiles = readObject(REMOVED, TreeSet.class);
-                //removedFiles.add(fileName);
-                //writeObject(REMOVED, removedFiles);
             }
         }
         writeObject(STAGE, stageMap);
     }
 
+    public static void globalLog() {
+        List<String> commitList = plainFilenamesIn(COMMIT_DIR);
+        for (String c : commitList) {
+            Commit currCommit = Commit.readCommit(c);
+            System.out.println("===");
+            System.out.println("commit " + currCommit.CommitHashID());
+            System.out.println("Date: " + currCommit.returnCreatedTime());
+            System.out.println(currCommit.returnMessage());
+            System.out.println();
+        }
+    }
+
+    public static void find(String msg) {
+        boolean findCommit = false;
+        List<String> commitList = plainFilenamesIn(COMMIT_DIR);
+        for (String c : commitList) {
+            Commit currCommit = Commit.readCommit(c);
+            if (msg.equals(currCommit.returnMessage())){
+                System.out.println("commit " + currCommit.CommitHashID());
+                findCommit = true;
+            }
+        }
+        if (!findCommit) {
+            System.out.println("Found no commit with that message.");
+        }
+    }
+    
 }
