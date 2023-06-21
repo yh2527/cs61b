@@ -7,13 +7,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Map;
 
 import static gitlet.Utils.*;
 
 /**
  * Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
+ *  It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  * @author TODO
@@ -51,14 +50,9 @@ public class Commit implements Serializable {
     }
 
     public static Commit readCommit(String hashID) {
-        try {
             File inFile = join(Repository.COMMIT_DIR, hashID);
             Commit c = readObject(inFile, Commit.class);
             return c;
-        } catch (Exception e) {
-            System.out.println("No commit with that id exists.");
-            throw error("No commit with that id exists.");
-        }
     }
 
     public void saveCommit() {
@@ -66,11 +60,11 @@ public class Commit implements Serializable {
         writeObject(outFile, this);
     }
 
-    public String CommitHashID() {
+    public String commitHashID() {
         return this.ID;
     }
 
-    public String ParentHashID() {
+    public String parentHashID() {
         return this.parentID;
     }
 
@@ -82,7 +76,7 @@ public class Commit implements Serializable {
         return this.message;
     }
 
-    public HashMap CommitFileMap() {
+    public HashMap commitFileMap() {
         return this.fileMap;
     }
 

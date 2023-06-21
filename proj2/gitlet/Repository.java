@@ -38,13 +38,14 @@ public class Repository {
     public static final File MASTER = join(HEAD, "master");
     public static final File STAGE = join(GITLET_DIR, "stage");
     public static final File REMOVED = join(GITLET_DIR, "removed");
-    public static final File initCommitID = join(GITLET_DIR, "initCommitID");
+    public static final File INITCOMMITID = join(GITLET_DIR, "initCommitID");
 
     public static void init() {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
         } else {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.out.println("A Gitlet version-control system " +
+                    "already exists in the current directory.");
             System.exit(0);
         }
         //dir for commits and blobs
@@ -76,14 +77,14 @@ public class Repository {
         writeObject(REMOVED, removedFiles);
         //set up default commit: no file "initial commit"
         Commit initCommit = new Commit("initial commit");
-        writeContents(MASTER, initCommit.CommitHashID());
+        writeContents(MASTER, initCommit.commitHashID());
         initCommit.saveCommit();
         try {
-            initCommitID.createNewFile();
+            INITCOMMITID.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writeContents(initCommitID, initCommit.CommitHashID());
+        writeContents(INITCOMMITID, initCommit.commitHashID());
     }
 
     public static void add(String fileName) {
@@ -101,7 +102,7 @@ public class Repository {
         if (addFileID.equals(stageRemoveMap.get(fileName))) {
             checkout(fileName, null);
             stageRemoveMap.remove(fileName);
-        } else if (addFileID.equals(latestCommit.CommitFileMap().get(fileName))) {
+        } else if (addFileID.equals(latestCommit.commitFileMap().get(fileName))) {
             //check if file content is the same as in the current commit
             // remove the file from the staging area if it's there
             stageAddMap.remove(fileName);
@@ -123,7 +124,11 @@ public class Repository {
             System.out.println("Please enter a commit message.");
         } else {
             Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
-            Commit newCommit = new Commit(msg, latestCommit.CommitFileMap(), latestCommit.CommitHashID());
+            Commit newCommit = new Commit(
+                    msg,
+                    latestCommit.commitFileMap(),
+                    latestCommit.commitHashID()
+            );
             for (String a : stageAddMap.keySet()) {
                 String aid = stageAddMap.get(a);
                 newCommit.trackNewFile(a, aid);
@@ -139,7 +144,7 @@ public class Repository {
             stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
             newCommit.saveCommit();
-            writeContents(MASTER, newCommit.CommitHashID());
+            writeContents(MASTER, newCommit.commitHashID());
         }
     }
 
@@ -148,11 +153,11 @@ public class Repository {
         while (currHash != null) {
             Commit currCommit = Commit.readCommit(currHash);
             System.out.println("===");
-            System.out.println("commit " + currCommit.CommitHashID());
+            System.out.println("commit " + currCommit.commitHashID());
             System.out.println("Date: " + currCommit.returnCreatedTime());
             System.out.println(currCommit.returnMessage());
             System.out.println();
-            currHash = currCommit.ParentHashID();
+            currHash = currCommit.parentHashID();
             //System.out.println(currCommit.returnMessage());
         }
     }
@@ -164,12 +169,13 @@ public class Repository {
         } else {
             targetCommit = Commit.readCommit(checkoutCommitID);
         }
-        HashMap<String, String> targetFileMap = targetCommit.CommitFileMap();
+        HashMap<String, String> targetFileMap = targetCommit.commitFileMap();
         String checkoutFileHashID = targetFileMap.get(checkoutFileName);
         if (checkoutFileHashID == null) {
             System.out.println("File does not exist in that commit.");
-        } else
+        } else {
             saveFiletoCWD(checkoutFileName, checkoutFileHashID);
+        }
     }
 
     public static void saveFilefromCWD(String fileName, String fileHashID) {
@@ -222,7 +228,7 @@ public class Repository {
         String rmFileID = stageAddMap.remove(fileName);
         if (rmFileID == null) {
             Commit currCommit = Commit.readCommit(readContentsAsString(MASTER));
-            HashMap<String, String> currCommitFileMap = currCommit.CommitFileMap();
+            HashMap<String, String> currCommitFileMap = currCommit.commitFileMap();
             String rmFileIDinCurrCommit = currCommitFileMap.get(fileName);
             if (rmFileIDinCurrCommit == null) {
                 System.out.println("No reason to remove the file.");
@@ -243,7 +249,7 @@ public class Repository {
         for (String c : commitList) {
             Commit currCommit = Commit.readCommit(c);
             System.out.println("===");
-            System.out.println("commit " + currCommit.CommitHashID());
+            System.out.println("commit " + currCommit.commitHashID());
             System.out.println("Date: " + currCommit.returnCreatedTime());
             System.out.println(currCommit.returnMessage());
             System.out.println();
@@ -256,7 +262,7 @@ public class Repository {
         for (String c : commitList) {
             Commit currCommit = Commit.readCommit(c);
             if (msg.equals(currCommit.returnMessage())) {
-                System.out.println(currCommit.CommitHashID());
+                System.out.println(currCommit.commitHashID());
                 findCommit = true;
             }
         }
