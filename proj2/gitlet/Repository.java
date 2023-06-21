@@ -232,6 +232,7 @@ public class Repository {
                 if (toRemove.exists()) {
                     toRemove.delete();
                 }
+                stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
             }
         }
         writeObject(STAGE, stageMap);
