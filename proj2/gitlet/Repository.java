@@ -44,8 +44,8 @@ public class Repository {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
         } else {
-            System.out.println("A Gitlet version-control system " +
-                    "already exists in the current directory.");
+            System.out.println("A Gitlet version-control system "
+                    + "already exists in the current directory.");
             System.exit(0);
         }
         //dir for commits and blobs

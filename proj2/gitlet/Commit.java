@@ -12,8 +12,8 @@ import static gitlet.Utils.*;
 
 /**
  * Represents a gitlet commit object.
- *  It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ * It's a good idea to give a description here of what else this Class
+ * does at a high level.
  *
  * @author TODO
  */
@@ -50,9 +50,9 @@ public class Commit implements Serializable {
     }
 
     public static Commit readCommit(String hashID) {
-            File inFile = join(Repository.COMMIT_DIR, hashID);
-            Commit c = readObject(inFile, Commit.class);
-            return c;
+        File inFile = join(Repository.COMMIT_DIR, hashID);
+        Commit c = readObject(inFile, Commit.class);
+        return c;
     }
 
     public void saveCommit() {
@@ -83,6 +83,7 @@ public class Commit implements Serializable {
     public String untrackFile(String fileName) {
         return fileMap.remove(fileName);
     }
+
     public void trackNewFile(String fileName, String fileHashID) {
         fileMap.put(fileName, fileHashID);
     }
