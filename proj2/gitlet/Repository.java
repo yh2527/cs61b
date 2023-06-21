@@ -229,10 +229,8 @@ public class Repository {
                 System.exit(0);
             } else {
                 File toRemove = join(CWD, fileName);
-                if (!restrictedDelete(toRemove)) {
-                    System.out.println("File is not successfully deleted.");
-                } else {
-                    stageRemoveMap.put(fileName, rmFileIDinCurrCommit);
+                if (toRemove.exists()) {
+                    toRemove.delete();
                 }
             }
         }
@@ -257,7 +255,7 @@ public class Repository {
         for (String c : commitList) {
             Commit currCommit = Commit.readCommit(c);
             if (msg.equals(currCommit.returnMessage())) {
-                System.out.println("commit " + currCommit.CommitHashID());
+                System.out.println(currCommit.CommitHashID());
                 findCommit = true;
             }
         }
