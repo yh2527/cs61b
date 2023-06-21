@@ -95,11 +95,15 @@ public class Repository {
         String addFileID = sha1(readContents(addFile));
         HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
         HashMap<String, String> stageAddMap = stageMap.get("add");
+        HashMap<String, String> stageRemoveMap = stageMap.get("remove");
         //System.out.println(readContentsAsString(MASTER));
         Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
-        //check if file content is the same as in the current commit
-        if (addFileID.equals(latestCommit.CommitFileMap().get(fileName))) {
-            //remove the file from the staging area if it's there
+        if (addFileID.equals(stageRemoveMap.get(fileName))) {
+            checkout(fileName, null);
+            stageRemoveMap.remove(fileName);
+        } else if (addFileID.equals(latestCommit.CommitFileMap().get(fileName))) {
+            //check if file content is the same as in the current commit
+            // remove the file from the staging area if it's there
             stageAddMap.remove(fileName);
         } else {
             stageAddMap.put(fileName, addFileID);
@@ -252,7 +256,7 @@ public class Repository {
         List<String> commitList = plainFilenamesIn(COMMIT_DIR);
         for (String c : commitList) {
             Commit currCommit = Commit.readCommit(c);
-            if (msg.equals(currCommit.returnMessage())){
+            if (msg.equals(currCommit.returnMessage())) {
                 System.out.println("commit " + currCommit.CommitHashID());
                 findCommit = true;
             }
@@ -261,5 +265,5 @@ public class Repository {
             System.out.println("Found no commit with that message.");
         }
     }
-    
+
 }
