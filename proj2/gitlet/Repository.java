@@ -188,10 +188,9 @@ public class Repository {
             Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
             HashMap<String, String> targCommitMap = targCommit.commitFileMap();
             Set<String> fileSet = targCommitMap.keySet();
-            System.out.println(CWD.listFiles());
             for (File file : CWD.listFiles()) {
-                System.out.println(file.getName());
-                if (!fileSet.contains(file.getName())) {
+                String fileName = file.getName();
+                if (fileName.charAt(0)!='.' && !fileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
                     System.exit(0);
