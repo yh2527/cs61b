@@ -194,6 +194,7 @@ public class Repository {
                             + " delete it, or add and commit it first.");
                     System.exit(0);
                 }
+                file.delete();
             }
             Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
             HashMap<String, String> targCommitMap = targCommit.commitFileMap();
