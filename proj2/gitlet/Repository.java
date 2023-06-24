@@ -170,7 +170,8 @@ public class Repository {
         }
     }
 
-    public static void checkout(String checkoutFileName, String checkoutCommitID, String checkoutBranch) {
+    public static void checkout(String checkoutFileName,
+                                String checkoutCommitID, String checkoutBranch) {
         Commit targetCommit;
         File curPointer = readObject(HEAD, File.class);
         Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
@@ -187,7 +188,9 @@ public class Repository {
             Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
             HashMap<String, String> targCommitMap = targCommit.commitFileMap();
             Set<String> fileSet = targCommitMap.keySet();
+            System.out.println(CWD.listFiles());
             for (File file : CWD.listFiles()) {
+                System.out.println(file.getName());
                 if (!fileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
@@ -309,17 +312,17 @@ public class Repository {
     }
 
     public static void branch(String branchName) {
-        File NEWB = join(REFS, branchName);
-        if (NEWB.exists()) {
+        File newBranch = join(REFS, branchName);
+        if (newBranch.exists()) {
             System.out.println("A branch with that name already exists.");
             System.exit(0);
         }
         try {
-            NEWB.createNewFile();
+            newBranch.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
         File curPointer = readObject(HEAD, File.class);
-        writeContents(NEWB, readContentsAsString(curPointer));
+        writeContents(newBranch, readContentsAsString(curPointer));
     }
 }
