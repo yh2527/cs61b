@@ -190,6 +190,7 @@ public class Repository {
             Set<String> fileSet = targCommitMap.keySet();
             for (File file : CWD.listFiles()) {
                 String fileName = file.getName();
+                System.out.println(fileName);
                 if (fileName.charAt(0)!='.' && !fileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
