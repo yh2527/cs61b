@@ -185,18 +185,20 @@ public class Repository {
                 System.out.println("No need to checkout the current branch.");
                 System.exit(0);
             }
-            Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
-            HashMap<String, String> targCommitMap = targCommit.commitFileMap();
-            Set<String> fileSet = targCommitMap.keySet();
+            HashMap<String, String> currCommitMap = currCommit.commitFileMap();
+            Set<String> currFileSet = currCommitMap.keySet();
             for (File file : CWD.listFiles()) {
                 String fileName = file.getName();
                 System.out.println(fileName);
-                if (fileName.charAt(0)!='.' && !fileSet.contains(file.getName())) {
+                if (fileName.charAt(0)!='.' && !currFileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
                     System.exit(0);
                 }
             }
+            Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
+            HashMap<String, String> targCommitMap = targCommit.commitFileMap();
+            Set<String> fileSet = targCommitMap.keySet();
             for (String fileName : fileSet) {
                 String fid = targCommitMap.get(fileName);
                 saveFiletoCWD(fileName, fid);
