@@ -196,6 +196,7 @@ public class Repository {
                 }
                 file.delete();
             }
+            writeObject(HEAD, targetBranch);
             Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
             HashMap<String, String> targCommitMap = targCommit.commitFileMap();
             Set<String> fileSet = targCommitMap.keySet();
