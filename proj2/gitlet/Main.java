@@ -95,6 +95,14 @@ public class Main {
                 String MsgToLookUp = args[1];
                 Repository.find(MsgToLookUp);
                 break;
+            case "branch":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String branchName = args[1];
+                Repository.branch(branchName);
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");

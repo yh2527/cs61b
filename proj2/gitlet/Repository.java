@@ -34,8 +34,9 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File FILE_DIR = join(GITLET_DIR, "files");
     public static final File COMMIT_DIR = join(GITLET_DIR, "commits");
-    public static final File HEAD = join(GITLET_DIR, "heads");
-    public static final File MASTER = join(HEAD, "master");
+    public static final File REFS = join(GITLET_DIR, "refs");
+    public static final File MASTER = join(REFS, "master");
+    public static final File HEAD = join(GITLET_DIR, "head");
     public static final File STAGE = join(GITLET_DIR, "stage");
     public static final File REMOVED = join(GITLET_DIR, "removed");
     public static final File INITCOMMITID = join(GITLET_DIR, "initCommitID");
@@ -51,13 +52,20 @@ public class Repository {
         //dir for commits and blobs
         FILE_DIR.mkdir();
         COMMIT_DIR.mkdir();
-        //file for head pointer
-        HEAD.mkdir();
+        //create dir for refs: master and branches
+        REFS.mkdir();
         try {
             MASTER.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //file for head pointer, set it to MASTER
+        try {
+            HEAD.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        writeObject(HEAD, MASTER);
         //file for staging area
         try {
             STAGE.createNewFile();
@@ -98,7 +106,8 @@ public class Repository {
         HashMap<String, String> stageAddMap = stageMap.get("add");
         HashMap<String, String> stageRemoveMap = stageMap.get("remove");
         //System.out.println(readContentsAsString(MASTER));
-        Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
+        File curPointer = readObject(HEAD, File.class);
+        Commit latestCommit = Commit.readCommit(readContentsAsString(curPointer));
         if (addFileID.equals(stageRemoveMap.get(fileName))) {
             checkout(fileName, null);
             stageRemoveMap.remove(fileName);
@@ -123,7 +132,8 @@ public class Repository {
         if (msg.length() == 0) {
             System.out.println("Please enter a commit message.");
         } else {
-            Commit latestCommit = Commit.readCommit(readContentsAsString(MASTER));
+            File curPointer = readObject(HEAD, File.class);
+            Commit latestCommit = Commit.readCommit(readContentsAsString(curPointer));
             Commit newCommit = new Commit(
                     msg,
                     latestCommit.commitFileMap(),
@@ -144,12 +154,13 @@ public class Repository {
             stageRemoveMap.clear();
             writeObject(STAGE, stageMap);
             newCommit.saveCommit();
-            writeContents(MASTER, newCommit.commitHashID());
+            writeContents(curPointer, newCommit.commitHashID());
         }
     }
 
     public static void log() {
-        String currHash = readContentsAsString(MASTER);
+        File curPointer = readObject(HEAD, File.class);
+        String currHash = readContentsAsString(curPointer);
         while (currHash != null) {
             Commit currCommit = Commit.readCommit(currHash);
             System.out.println("===");
@@ -165,7 +176,8 @@ public class Repository {
     public static void checkout(String checkoutFileName, String checkoutCommitID) {
         Commit targetCommit;
         if (checkoutCommitID == null) {
-            targetCommit = Commit.readCommit(readContentsAsString(MASTER));
+            File curPointer = readObject(HEAD, File.class);
+            targetCommit = Commit.readCommit(readContentsAsString(curPointer));
         } else {
             targetCommit = Commit.readCommit(checkoutCommitID);
         }
@@ -197,7 +209,7 @@ public class Repository {
     public static void status() {
         System.out.println("=== Branches ===");
         System.out.println("*master");
-        //System.out.println("other-branch");
+        //TODO: System.out.println("other-branch");
         System.out.println();
         System.out.println("=== Staged Files ===");
         HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
@@ -271,4 +283,7 @@ public class Repository {
         }
     }
 
+    public static void branch(String branchName) {
+
+    }
 }
