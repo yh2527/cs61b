@@ -189,7 +189,6 @@ public class Repository {
             Set<String> currFileSet = currCommitMap.keySet();
             for (File file : CWD.listFiles()) {
                 String fileName = file.getName();
-                System.out.println(fileName);
                 if (fileName.charAt(0)!='.' && !currFileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
