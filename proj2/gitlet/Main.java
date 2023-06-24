@@ -44,9 +44,14 @@ public class Main {
             case "checkout":
                 String checkoutFileName = null;
                 String checkoutCommitID = null;
+                String checkoutBranch = null;
                 if (args.length < 2 || args.length > 4) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
+                }
+                if (args.length == 2) {
+                    checkoutBranch = args[1];
+                    //checkoutCommitID = Utils.readContentsAsString(Repository.MASTER);
                 }
                 if (args.length == 3) {
                     checkoutFileName = args[2];
@@ -56,7 +61,7 @@ public class Main {
                     checkoutFileName = args[3];
                     checkoutCommitID = args[1];
                 }
-                Repository.checkout(checkoutFileName, checkoutCommitID);
+                Repository.checkout(checkoutFileName, checkoutCommitID, checkoutBranch);
                 break;
             case "log":
                 if (args.length > 1) {

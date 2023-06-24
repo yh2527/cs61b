@@ -2,10 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 //import java.util.Set;
-import java.util.List;
-import java.util.TreeSet;
 
 import static gitlet.Utils.*;
 
@@ -105,11 +103,10 @@ public class Repository {
         HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
         HashMap<String, String> stageAddMap = stageMap.get("add");
         HashMap<String, String> stageRemoveMap = stageMap.get("remove");
-        //System.out.println(readContentsAsString(MASTER));
         File curPointer = readObject(HEAD, File.class);
         Commit latestCommit = Commit.readCommit(readContentsAsString(curPointer));
         if (addFileID.equals(stageRemoveMap.get(fileName))) {
-            checkout(fileName, null);
+            checkout(fileName, null, null);
             stageRemoveMap.remove(fileName);
         } else if (addFileID.equals(latestCommit.commitFileMap().get(fileName))) {
             //check if file content is the same as in the current commit
@@ -173,20 +170,47 @@ public class Repository {
         }
     }
 
-    public static void checkout(String checkoutFileName, String checkoutCommitID) {
+    public static void checkout(String checkoutFileName, String checkoutCommitID, String checkoutBranch) {
         Commit targetCommit;
-        if (checkoutCommitID == null) {
-            File curPointer = readObject(HEAD, File.class);
-            targetCommit = Commit.readCommit(readContentsAsString(curPointer));
+        File curPointer = readObject(HEAD, File.class);
+        Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
+        if (checkoutBranch != null) {
+            File targetBranch = join(REFS, checkoutBranch);
+            if (!targetBranch.exists()) {
+                System.out.println("No such branch exists.");
+                System.exit(0);
+            }
+            if (curPointer.equals(targetBranch)) {
+                System.out.println("No need to checkout the current branch.");
+                System.exit(0);
+            }
+            Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
+            HashMap<String, String> targCommitMap = targCommit.commitFileMap();
+            Set<String> fileSet = targCommitMap.keySet();
+            for (File file : CWD.listFiles()) {
+                if (!fileSet.contains(file.getName())) {
+                    System.out.println("There is an untracked file in the way;"
+                            + " delete it, or add and commit it first.");
+                    System.exit(0);
+                }
+            }
+            for (String fileName : fileSet) {
+                String fid = targCommitMap.get(fileName);
+                saveFiletoCWD(fileName, fid);
+            }
         } else {
-            targetCommit = Commit.readCommit(checkoutCommitID);
-        }
-        HashMap<String, String> targetFileMap = targetCommit.commitFileMap();
-        String checkoutFileHashID = targetFileMap.get(checkoutFileName);
-        if (checkoutFileHashID == null) {
-            System.out.println("File does not exist in that commit.");
-        } else {
-            saveFiletoCWD(checkoutFileName, checkoutFileHashID);
+            if (checkoutCommitID == null) {
+                targetCommit = currCommit;
+            } else {
+                targetCommit = Commit.readCommit(checkoutCommitID);
+            }
+            HashMap<String, String> targetFileMap = targetCommit.commitFileMap();
+            String checkoutFileHashID = targetFileMap.get(checkoutFileName);
+            if (checkoutFileHashID == null) {
+                System.out.println("File does not exist in that commit.");
+            } else {
+                saveFiletoCWD(checkoutFileName, checkoutFileHashID);
+            }
         }
     }
 
@@ -239,7 +263,8 @@ public class Repository {
         HashMap<String, String> stageRemoveMap = stageMap.get("remove");
         String rmFileID = stageAddMap.remove(fileName);
         if (rmFileID == null) {
-            Commit currCommit = Commit.readCommit(readContentsAsString(MASTER));
+            File curPointer = readObject(HEAD, File.class);
+            Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
             HashMap<String, String> currCommitFileMap = currCommit.commitFileMap();
             String rmFileIDinCurrCommit = currCommitFileMap.get(fileName);
             if (rmFileIDinCurrCommit == null) {
@@ -284,6 +309,17 @@ public class Repository {
     }
 
     public static void branch(String branchName) {
-
+        File NEWB = join(REFS, branchName);
+        if (NEWB.exists()) {
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        try {
+            NEWB.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File curPointer = readObject(HEAD, File.class);
+        writeContents(NEWB, readContentsAsString(curPointer));
     }
 }
