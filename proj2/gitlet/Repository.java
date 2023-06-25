@@ -189,7 +189,7 @@ public class Repository {
             Set<String> currFileSet = currCommitMap.keySet();
             for (File file : CWD.listFiles()) {
                 String fileName = file.getName();
-                if (fileName.charAt(0)!='.' && !currFileSet.contains(file.getName())) {
+                if (fileName.charAt(0) != '.' && !currFileSet.contains(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
                     System.exit(0);
@@ -237,6 +237,10 @@ public class Repository {
     }
 
     public static void status() {
+        if (!GITLET_DIR.exists()) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
         System.out.println("=== Branches ===");
         System.out.println("*master");
         //TODO: System.out.println("other-branch");

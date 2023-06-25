@@ -50,7 +50,20 @@ public class Commit implements Serializable {
     }
 
     public static Commit readCommit(String hashID) {
+        if (hashID.length() == 5) {
+            for (File c : Repository.COMMIT_DIR.listFiles()) {
+                String cid = c.getName();
+                if (hashID.equals(cid.substring(0,5))) {
+                    hashID = cid;
+                    break;
+                }
+            }
+        }
         File inFile = join(Repository.COMMIT_DIR, hashID);
+        if (!inFile.exists()) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
         Commit c = readObject(inFile, Commit.class);
         return c;
     }
