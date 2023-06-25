@@ -55,9 +55,17 @@ public class Main {
                 }
                 if (args.length == 3) {
                     checkoutFileName = args[2];
+                    if (!args[1].equals("--")) {
+                        System.out.println("Incorrect operands.");
+                        System.exit(0);
+                    }
                     //checkoutCommitID = Utils.readContentsAsString(Repository.MASTER);
                 }
                 if (args.length == 4) {
+                    if (!args[2].equals("--")) {
+                        System.out.println("Incorrect operands.");
+                        System.exit(0);
+                    }
                     checkoutFileName = args[3];
                     checkoutCommitID = args[1];
                 }

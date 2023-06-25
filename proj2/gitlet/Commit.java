@@ -50,10 +50,10 @@ public class Commit implements Serializable {
     }
 
     public static Commit readCommit(String hashID) {
-        if (hashID.length() == 5) {
+        if (hashID.length() < 40) {
             for (File c : Repository.COMMIT_DIR.listFiles()) {
                 String cid = c.getName();
-                if (hashID.equals(cid.substring(0,5))) {
+                if (hashID.equals(cid.substring(0,hashID.length()))) {
                     hashID = cid;
                     break;
                 }
