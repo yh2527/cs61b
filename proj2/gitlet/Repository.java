@@ -185,17 +185,23 @@ public class Repository {
                 System.out.println("No need to checkout the current branch.");
                 System.exit(0);
             }
+            HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+            HashMap<String, String> stageAddMap = stageMap.get("add");
             HashMap<String, String> currCommitMap = currCommit.commitFileMap();
             Set<String> currFileSet = currCommitMap.keySet();
             for (File file : CWD.listFiles()) {
                 String fileName = file.getName();
-                if (fileName.charAt(0) != '.' && !currFileSet.contains(file.getName())) {
+                if (fileName.charAt(0) != '.'
+                        && !currFileSet.contains(file.getName())
+                        && !stageAddMap.containsKey(file.getName())) {
                     System.out.println("There is an untracked file in the way;"
                             + " delete it, or add and commit it first.");
                     System.exit(0);
                 }
                 file.delete();
             }
+            stageAddMap.clear();
+            writeObject(STAGE, stageMap);
             writeObject(HEAD, targetBranch);
             Commit targCommit = Commit.readCommit(readContentsAsString(targetBranch));
             HashMap<String, String> targCommitMap = targCommit.commitFileMap();
@@ -362,17 +368,23 @@ public class Repository {
     public static void reset(String resetCommitId) {
         File curPointer = readObject(HEAD, File.class);
         Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
+        HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
+        HashMap<String, String> stageAddMap = stageMap.get("add");
         HashMap<String, String> currCommitMap = currCommit.commitFileMap();
         Set<String> currFileSet = currCommitMap.keySet();
         for (File file : CWD.listFiles()) {
             String fileName = file.getName();
-            if (fileName.charAt(0) != '.' && !currFileSet.contains(file.getName())) {
+            if (fileName.charAt(0) != '.'
+                    && !currFileSet.contains(file.getName())
+                    && !stageAddMap.containsKey(file.getName())) {
                 System.out.println("There is an untracked file in the way;"
                         + " delete it, or add and commit it first.");
                 System.exit(0);
             }
             file.delete();
         }
+        stageAddMap.clear();
+        writeObject(STAGE, stageMap);
         Commit targCommit = Commit.readCommit(resetCommitId);
         HashMap<String, String> targCommitMap = targCommit.commitFileMap();
         Set<String> fileSet = targCommitMap.keySet();
