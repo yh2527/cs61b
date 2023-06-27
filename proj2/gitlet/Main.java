@@ -116,6 +116,14 @@ public class Main {
                 String branchName = args[1];
                 Repository.branch(branchName);
                 break;
+            case "rm-branch":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String rmbranchName = args[1];
+                Repository.rmbranch(rmbranchName);
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");

@@ -50,7 +50,7 @@ public class Repository {
         //dir for commits and blobs
         FILE_DIR.mkdir();
         COMMIT_DIR.mkdir();
-        //create dir for refs: master and branches
+        //create dir for refs: default master and branches
         REFS.mkdir();
         try {
             MASTER.createNewFile();
@@ -329,7 +329,22 @@ public class Repository {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // point the new branch to the current head
         File curPointer = readObject(HEAD, File.class);
         writeContents(newBranch, readContentsAsString(curPointer));
+    }
+
+    public static void rmbranch(String branchName) {
+        File rmBranch = join(REFS, branchName);
+        if (!rmBranch.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        File curPointer = readObject(HEAD, File.class);
+        if (rmBranch.equals(curPointer)) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        rmBranch.delete();
     }
 }
