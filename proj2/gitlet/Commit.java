@@ -53,7 +53,7 @@ public class Commit implements Serializable {
         if (hashID.length() < 40) {
             for (File c : Repository.COMMIT_DIR.listFiles()) {
                 String cid = c.getName();
-                if (hashID.equals(cid.substring(0,hashID.length()))) {
+                if (hashID.equals(cid.substring(0, hashID.length()))) {
                     hashID = cid;
                     break;
                 }

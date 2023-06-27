@@ -361,8 +361,25 @@ public class Repository {
 
     public static void reset(String resetCommitId) {
         File curPointer = readObject(HEAD, File.class);
+        Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
+        HashMap<String, String> currCommitMap = currCommit.commitFileMap();
+        Set<String> currFileSet = currCommitMap.keySet();
+        for (File file : CWD.listFiles()) {
+            String fileName = file.getName();
+            if (fileName.charAt(0) != '.' && !currFileSet.contains(file.getName())) {
+                System.out.println("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
+                System.exit(0);
+            }
+            file.delete();
+        }
+        Commit targCommit = Commit.readCommit(resetCommitId);
+        HashMap<String, String> targCommitMap = targCommit.commitFileMap();
+        Set<String> fileSet = targCommitMap.keySet();
+        for (String fileName : fileSet) {
+            String fid = targCommitMap.get(fileName);
+            saveFiletoCWD(fileName, fid);
+        }
         writeContents(curPointer, resetCommitId);
-        String curBranchName = curPointer.getName();
-        checkout(null,null,curBranchName);
     }
 }
