@@ -124,6 +124,14 @@ public class Main {
                 String rmbranchName = args[1];
                 Repository.rmbranch(rmbranchName);
                 break;
+            case "reset":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String resetCommitId = args[1];
+                Repository.reset(resetCommitId);
+                break;
             // TODO: FILL THE REST IN
             default:
                 System.out.println("No command with that name exists.");

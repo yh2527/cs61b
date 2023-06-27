@@ -242,8 +242,19 @@ public class Repository {
             System.exit(0);
         }
         System.out.println("=== Branches ===");
-        System.out.println("*master");
-        //TODO: System.out.println("other-branch");
+        File curPointer = readObject(HEAD, File.class);
+        String curBranchName = curPointer.getName();
+        //System.out.println("*master");
+        TreeSet<String> sortedBranchNames = new TreeSet<>();
+        for (File b : REFS.listFiles()) {
+            sortedBranchNames.add(b.getName());
+        }
+        for (String fileName : sortedBranchNames) {
+            if (fileName.equals(curBranchName)) {
+                System.out.print("*");
+            }
+            System.out.println(fileName);
+        }
         System.out.println();
         System.out.println("=== Staged Files ===");
         HashMap<String, HashMap> stageMap = readObject(STAGE, HashMap.class);
@@ -346,5 +357,12 @@ public class Repository {
             System.exit(0);
         }
         rmBranch.delete();
+    }
+
+    public static void reset(String resetCommitId) {
+        File curPointer = readObject(HEAD, File.class);
+        writeContents(curPointer, resetCommitId);
+        String curBranchName = curPointer.getName();
+        checkout(null,null,curBranchName);
     }
 }
