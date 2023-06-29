@@ -401,14 +401,13 @@ public class Repository {
         Commit currCommit = getCurrCommit();
         Commit targetBranchCommit = getBranchHeadCommit(mergeBranch);
         String targBCommitHash = targetBranchCommit.commitHashID();
-        System.out.println("currCommit:" + currCommit.commitHashID());
-        System.out.println("targBCommitHash:" + targBCommitHash);
-        System.out.println("split:" + split.commitHashID());
-        if (targetBranchCommit.equals(split)) {
+        String currCommitHash = currCommit.commitHashID();
+        String splitCommitHash = split.commitHashID();
+        if (targBCommitHash.equals(splitCommitHash)) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
         }
-        if (currCommit.equals(split)) {
+        if (currCommitHash.equals(splitCommitHash)) {
             checkout(null, null, mergeBranch);
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
