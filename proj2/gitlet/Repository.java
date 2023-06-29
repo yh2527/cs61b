@@ -6,6 +6,7 @@ import java.util.*;
 //import java.util.Set;
 
 import static gitlet.Utils.*;
+import static gitlet.Utils.readContentsAsString;
 
 
 /**
@@ -393,5 +394,115 @@ public class Repository {
             saveFiletoCWD(fileName, fid);
         }
         writeContents(curPointer, resetCommitId);
+    }
+
+    public static void merge(String mergeBranch) {
+        Commit split = findSplit(mergeBranch);
+        Commit currCommit = getCurrCommit();
+        Commit targetBranchCommit = getBranchHeadCommit(mergeBranch);
+        File targetBranch = join(REFS, mergeBranch);
+        String targBCommitHash = readContentsAsString(targetBranch);
+        if (targetBranchCommit.equals(split)) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        if (currCommit.equals(split)) {
+            checkout(null, null, mergeBranch);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        HashMap<String, String> currCommitMap = currCommit.commitFileMap();
+        HashMap<String, String> splitCommitMap = split.commitFileMap();
+        HashMap<String, String> targetCommitMap = targetBranchCommit.commitFileMap();
+        for (String fileName : splitCommitMap.keySet()) {
+            String curContent = currCommitMap.get(fileName);
+            String targBranchContent = targetCommitMap.get(fileName);
+            String splitContent = splitCommitMap.get(fileName);
+            if (!splitContent.equals(targBranchContent)) {
+                if (splitContent.equals(curContent)) {
+                    checkout(fileName, targBCommitHash, null);
+                    add(fileName);
+                } else if (!targBranchContent.equals(curContent)) {
+                    String curText = readContentsAsString(join(FILE_DIR, curContent));
+                    String tarText = readContentsAsString(join(FILE_DIR, targBranchContent));
+                    String newText = "<<<<<<< HEAD\n";
+                    newText += curText + "\n" + tarText + "\n";
+                    newText += ">>>>>>>";
+                    System.out.println("Encountered a merge conflict.");
+                }
+            }
+            if (splitContent.equals(curContent) && targBranchContent == null) {
+                rm(fileName);
+            }
+        }
+        for (String fileName : targetCommitMap.keySet()) {
+            String curContent = currCommitMap.get(fileName);
+            String targBranchContent = targetCommitMap.get(fileName);
+            String splitContent = splitCommitMap.get(fileName);
+            if (splitContent == null && curContent == null) {
+                checkout(fileName, targBCommitHash, null);
+                add(fileName);
+            }
+        }
+    }
+
+
+    private static Commit findSplit(String mergeBranch) {
+        Commit currCommit = getCurrCommit();
+        Commit targetBranchHead = getBranchHeadCommit(mergeBranch);
+        HashMap<String, Integer> currCommitAncestors = readAncestors(currCommit);
+        HashMap<String, Integer> targetBranchAncestors = readAncestors(targetBranchHead);
+        File curPointer = readObject(HEAD, File.class);
+        String latestAncestor = readContentsAsString(curPointer);
+        int smallestValue = Integer.MAX_VALUE;
+        for (Map.Entry<String, Integer> entry : currCommitAncestors.entrySet()) {
+            String key = entry.getKey();
+            Integer closestDistance = entry.getValue();
+            if (targetBranchAncestors.containsKey(key) && closestDistance < smallestValue) {
+                latestAncestor = key;
+                smallestValue = closestDistance;
+            }
+        }
+        return Commit.readCommit(latestAncestor);
+    }
+
+    private static HashMap<String, Integer> readAncestors(Commit c) {
+        HashMap<String, Integer> path = new HashMap<>();
+        Stack<Commit> stack = new Stack<>();
+        Stack<Integer> distances = new Stack<>();
+        stack.push(c);
+        distances.push(0);
+        while (!stack.isEmpty()) {
+            c = stack.pop();
+            int distance = distances.pop();
+            String commitID = c.commitHashID();
+            path.put(commitID, distance);
+            List<Commit> parentCommits = new ArrayList<>();
+            if (c.parentHashID() != null) {
+                parentCommits.add(Commit.readCommit(c.parentHashID()));
+            }
+            if (c.parentHashID2() != null) {
+                parentCommits.add(Commit.readCommit(c.parentHashID2()));
+            }
+            for (Commit parentCommit : parentCommits) {
+                if (!path.containsKey(parentCommit.commitHashID())) {
+                    stack.push(parentCommit);
+                    distances.push(distance + 1);
+                }
+            }
+        }
+        return path;
+    }
+
+    private static Commit getCurrCommit() {
+        File curPointer = readObject(HEAD, File.class);
+        Commit currCommit = Commit.readCommit(readContentsAsString(curPointer));
+        return currCommit;
+    }
+
+    private static Commit getBranchHeadCommit(String branchName) {
+        File targetBranch = join(REFS, branchName);
+        Commit branchHeadCommit = Commit.readCommit(readContentsAsString(targetBranch));
+        return branchHeadCommit;
     }
 }

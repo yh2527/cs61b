@@ -31,6 +31,7 @@ public class Commit implements Serializable {
     private String message;
     private String ID;
     private String parentID;
+    private String parentIDsecond;
     private String createStamp;
     private HashMap<String, String> fileMap = new HashMap<>();
 
@@ -79,6 +80,9 @@ public class Commit implements Serializable {
 
     public String parentHashID() {
         return this.parentID;
+    }
+    public String parentHashID2() {
+        return this.parentIDsecond;
     }
 
     public String returnCreatedTime() {

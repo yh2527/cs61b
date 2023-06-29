@@ -132,7 +132,14 @@ public class Main {
                 String resetCommitId = args[1];
                 Repository.reset(resetCommitId);
                 break;
-            // TODO: FILL THE REST IN
+            case "merge":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                String mergeBranch = args[1];
+                Repository.merge(mergeBranch);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
