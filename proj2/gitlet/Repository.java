@@ -400,8 +400,10 @@ public class Repository {
         Commit split = findSplit(mergeBranch);
         Commit currCommit = getCurrCommit();
         Commit targetBranchCommit = getBranchHeadCommit(mergeBranch);
-        File targetBranch = join(REFS, mergeBranch);
-        String targBCommitHash = readContentsAsString(targetBranch);
+        String targBCommitHash = targetBranchCommit.commitHashID();
+        System.out.println("currCommit:" + currCommit.commitHashID());
+        System.out.println("targBCommitHash:" + targBCommitHash);
+        System.out.println("split:" + split.commitHashID());
         if (targetBranchCommit.equals(split)) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
